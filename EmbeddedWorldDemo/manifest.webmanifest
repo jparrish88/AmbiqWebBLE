@@ -1,0 +1,17 @@
+{
+  "name": "Ambiq Embedded World Demo",
+  "short_name": "AMBQEWD",
+  "description": "HARV BLE as a Progressive Web App",
+  "scope": "/AmbiqWebBLE/EmbeddedWorldDemo/",
+  "start_url": "/AmbiqWebBLE/EmbeddedWorldDemo/",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "display": "standalone", 
+  "icons": [
+      {
+        "src": "/AmbiqWebBLE/EmbeddedWorldDemo/img/icon.png",
+        "type": "image/png",
+        "sizes": "700x700"
+      }
+  ]
+}
