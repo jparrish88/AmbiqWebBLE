@@ -203,6 +203,36 @@
         opacity: 1;
       }
     }
+
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 15px;
+      border-radius: 5px;  
+      background: #d3d3d3;
+      outline: none;
+      opacity: 0.7;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%; 
+      background: #04AA6D;
+      cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: #04AA6D;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -214,7 +244,7 @@
     <div class="status widget">
       <button id="pairButton">CONNECT</button>
       <div class="label statusBar" id="bluetooth">Click the connect button to connect your device</div>
-      <img src="logo_ambiq.svg" style="position: inherit;padding-right: 0px;filter: invert(100%);float: right; grid-column: 3; width: 80%; margin-top: 8.5%;" />
+      <img src="logo_ambiq.svg" style="position: inherit;padding-right: 0px;float: right; grid-column: 3; width: 100%; margin-top: 2.5%;" />
     </div>
 
     <div class="square widget" id="3d">
@@ -237,9 +267,34 @@
       <div id="gyroscope" class="graph"></div>
     </div>
 
+    <!--
     <div class="square widget">
       <div class="label">&#128161; RGB LED control</div>
       <div id="color-picker-container" class="graph"></div>
+    </div>
+    -->
+    <!--
+    <div class="short widget">
+      <div class="label">&#9202; Sample Rate - </div>
+      <div class="label" id="samplerate-value"></div>
+      <div class="shortgraph" id="samplerate"></div>
+    </div>
+    -->
+    
+    
+
+    <div class="square widget">
+      <div class="label">&#8986; Sample Rate</div>
+      <div class="label" id="samplerate-value"></div>
+      <div class="slidecontainer1">
+        Set Sample rate for: <br> Accel+Gyro<br> <br> 
+        <input type="range" min="0" max="200" value="0" class="slider" id="myRange1" label="sample rate" onchange=updateValue1(this)>
+      </div>
+
+      <div class="slidecontainer2">
+        <br> <br>Sample Rate Ratio for: <br> Enviromentals:Accelgyro<br> <br> 
+        <input type="range" min="1" max="50" value="5" class="slider" id="myRange2" label="sample rate"  onchange=updateValue2(this)>
+      </div>
     </div>
 
     <div class="short widget">
@@ -248,13 +303,11 @@
       <div class="label">&deg;C</div>
       <div class="shortgraph" id="temperature"></div>
     </div>
-
     <div class="short widget">
       <div class="label">&#128167; Humidity - </div>
       <div class="label" id="humidity-value"></div>
       <div class="label">%</div>
       <div class="shortgraph" id="humidity"></div>
-
     </div>
 
     <div class="short widget">
@@ -264,6 +317,14 @@
       <div class="shortgraph" id="pressure"></div>
     </div>
 
+    <!--
+    <div class="short widget">
+      <div class="label">&#8986; BLE Updates - </div>
+      <div class="label" id="updaterate-value"></div>
+      <div class="shortgraph" id="updaterate"></div>
+    </div>
+    -->
+
     <div class="short widget">
       <div class="label">&#127968; Indoor Air Quality - </div>
       <div class="label" id="bsec-value"></div>
@@ -271,12 +332,7 @@
       <div class="shortgraph" id="bsec"></div>
     </div>
 
-    <div class="short widget">
-      <div class="label"> &#128267;BATT Value -</div>
-      <div class="label" id="co2-value"></div>
-      <div class="label">%</div>
-      <div class="shortgraph" id="co2"></div>
-    </div>
+    
 
     <div class="short widget">
       <div class="label">&#x1F4A8; Gas Value -</div>
@@ -285,6 +341,12 @@
       <div class="shortgraph" id="gas"></div>
     </div>
 
+    <div class="short widget">
+      <div class="label"> &#128267;Battery Percent -</div>
+      <div class="label" id="co2-value"></div>
+      <div class="label">%</div>
+      <div class="shortgraph" id="co2"></div>
+    </div>
   </div>
 </body>
 
@@ -295,7 +357,7 @@
   
   */
 
-  var maxRecords = 64;
+  var maxRecords = 128;
 
   var AmbiqHARV =
   {
@@ -463,7 +525,9 @@
     snack('Connected.', 0);
     msg('');
 
-    initColorPicker();
+
+    updateSampleRate();
+    //initColorPicker();
   }
 
   function handleIncoming(sensor, dataReceived) {
@@ -507,8 +571,8 @@
       }
     }
     // clear color picker write
-    const colorPickerElement = document.getElementById("color-picker-container");
-    colorPickerElement.removeChild(colorPickerElement.firstChild);
+    //const colorPickerElement = document.getElementById("color-picker-container");
+    //colorPickerElement.removeChild(colorPickerElement.firstChild);
 
     snack('Device ' + device.name + ' has been disconnected.', 1);
     msg("Disconnected");
@@ -541,9 +605,33 @@
     )
   }
 
+  function updateValue1 (event) { 
+    updateSampleRate();
+  }
+
+  function updateValue2 (event) { 
+    updateSampleRate();
+  }
+
+  function updateSampleRate() {
+    samplerate1value = document.getElementById("myRange1").value
+    samplerate2value = document.getElementById("myRange2").value
+    var rgb_values = Uint8Array.of(samplerate1value, samplerate2value, 255);
+    AmbiqHARV['led'].writeValue = rgb_values;
+    BLEwriteTo('led');
+    var sampleratelabel = document.getElementById('samplerate-value');
+    sampleratelabel.innerHTML = (200 - samplerate1value ) + "," + ((200-samplerate1value)*samplerate2value)+ "ms";
+  }
+
+  function initSampleRate() {
+    var rgb_values = Uint8Array.of(0, 5, 255);
+    AmbiqHARV['led'].writeValue = rgb_values;
+    BLEwriteTo('led');
+  }
+
   function initColorPicker() {
     //Default color blue
-    var rgb_values = Uint8Array.of(0, 0, 255);
+    var rgb_values = Uint8Array.of(0, 5, 255);
     AmbiqHARV['led'].writeValue = rgb_values;
     BLEwriteTo('led');
     ledMaterial.color.setRGB(0,0,255);
