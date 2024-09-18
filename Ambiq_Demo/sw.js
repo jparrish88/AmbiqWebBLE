@@ -1,4 +1,4 @@
-var GHPATH = 'AmbiqWebBLE/EmbeddedWorldDemo';
+var GHPATH = 'AmbiqWebBLE/Ambiq_Demo';
 var APP_PREFIX = 'Ambiq_pwa_';
 var VERSION = 'version_002';
 var URLS = [    

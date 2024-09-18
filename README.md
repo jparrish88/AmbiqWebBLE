@@ -7,4 +7,4 @@ This is a temporary website .
 
 ## Ambiq Dashboard Dashboard
 
-[Ambiq Web BLE Dashboard](https://jparrish88.github.io/AmbiqWebBLE/EmbeddedWorldDemo/) (Chrome only)
+[Ambiq Web BLE Dashboard](https://AmbiqMicroFAEs.github.io/AmbiqWebBLE/Ambiq_Demo/) (Chrome only)
