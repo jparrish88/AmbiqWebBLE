@@ -247,6 +247,12 @@
       <img src="logo_ambiq.svg" style="position: inherit;padding-right: 0px;float: right; grid-column: 3; width: 100%; margin-top: 2.5%;" />
     </div>
 
+    <div class="status widget">
+      <button id="setTime">SetTime</button>
+      <div class="label statusBar" id="bluetooth">Device Date and Time: Nov 11 2024 - 02:48 PM</div>
+      <button id="setTime">GetTime</button>
+    </div>
+
     <div class="square widget" id="3d">
       <div class="label">&#128230; Quaternion Rotation</div>
       <div class="quaternion" id="canvasDigits">
@@ -401,6 +407,14 @@
       properties: ['BLEWrite'],
       structure: ['Uint8', 'Uint8', 'Uint8'],
       data: { 'R': [], 'G': [], 'B': [] },
+      writeBusy: false, // we need to track this to avoid 'GATT operation in progress' errors
+      writeValue: null
+    },
+    time: {
+      uuid: '19b10000-8002-537e-4f6c-d104768a1214',
+      properties: ['BLEWrite'],
+      structure: ['Uint8', 'Uint8', 'Uint8','Uint8', 'Uint8','Uint8', 'Uint8','Uint8', 'Uint8','Uint8', 'Uint8'],
+      data: { 'Changed': [], 'Hundredth': [], 'Second': [], 'Minute': [], 'Hour': [], 'Date': [], 'Month': [], 'Year': [], 'Weekday': [], 'Century': [], 'Mode': [] },
       writeBusy: false, // we need to track this to avoid 'GATT operation in progress' errors
       writeValue: null
     },
