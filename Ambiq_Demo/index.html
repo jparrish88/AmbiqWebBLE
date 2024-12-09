@@ -248,9 +248,9 @@
     </div>
 
     <div class="status widget">
-      <button id="setTime">SetTime</button>
-      <div class="label statusBar" id="bluetooth">Device Date and Time: Nov 11 2024 - 02:48 PM</div>
-      <button id="setTime">GetTime</button>
+      <button id="setTimeButtonClick">SetTime</button>
+      <div class="label statusBar" id="timelabel">Last Sampled Device Date and Time: <br>2024-11-11 19:36:29</div>
+      <button id="getTimeButtonClick">GetTime</button>
     </div>
 
     <div class="square widget" id="3d">
@@ -412,7 +412,7 @@
     },
     time: {
       uuid: '19b10000-8002-537e-4f6c-d104768a1214',
-      properties: ['BLEWrite'],
+      properties: ['BLEWrite', 'BLERead'],
       structure: ['Uint8', 'Uint8', 'Uint8','Uint8', 'Uint8','Uint8', 'Uint8','Uint8', 'Uint8','Uint8', 'Uint8'],
       data: { 'Changed': [], 'Hundredth': [], 'Second': [], 'Minute': [], 'Hour': [], 'Date': [], 'Month': [], 'Year': [], 'Weekday': [], 'Century': [], 'Mode': [] },
       writeBusy: false, // we need to track this to avoid 'GATT operation in progress' errors
@@ -474,6 +474,57 @@
   function msg(m) {
     BLEstatus.innerHTML = m;
   }
+
+  async function setTimeButton() {
+    const now = new Date();
+    // AmbiqHARV['time'].data.Changed.writeValue = 0xA5;
+    // AmbiqHARV['time'].data.Hundredth.writeValue = 0;
+    // AmbiqHARV['time'].data.Second.writeValue = now.getSeconds();
+    // AmbiqHARV['time'].data.Minute.writeValue = now.getMinutes();
+    // AmbiqHARV['time'].data.Hour.writeValue = now.getHours();
+    // AmbiqHARV['time'].data.Date.writeValue = now.getDate();
+    // AmbiqHARV['time'].data.Month.writeValue = now.getMonth() + 1;  // getMonth() returns 0-11, so add 1 to make it 1-12
+    // AmbiqHARV['time'].data.Year.writeValue = now.getFullYear() - 2000;
+    // AmbiqHARV['time'].data.Weekday.writeValue = now.getDay();  // Sunday = 0, Monday = 1, ..., Saturday = 6
+    // AmbiqHARV['time'].data.Century.writeValue = Math.floor(now.getFullYear() / 100);
+    // AmbiqHARV['time'].data.Mode.writeValue = 0;
+
+    var time_values = Uint8Array.of(0xA5, 0, now.getSeconds(), now.getMinutes(),now.getHours(),now.getDate(),
+        (now.getMonth() + 1), (now.getFullYear() - 2000), now.getDay(), (Math.floor(now.getFullYear() / 100)), 0);
+    AmbiqHARV['time'].writeValue = time_values;
+
+    BLEwriteTo('time');
+
+    getTimeButton();
+  }
+
+  async function getTimeButton() {
+
+    currentTime = {
+      ui8Hundredth: AmbiqHARV['time'].data.Hundredth[(AmbiqHARV['time'].data.Hundredth.length)-1],
+      ui8Second: AmbiqHARV['time'].data.Second[(AmbiqHARV['time'].data.Second.length)-1],
+      ui8Minute: AmbiqHARV['time'].data.Minute[(AmbiqHARV['time'].data.Minute.length)-1],
+      ui8Hour: AmbiqHARV['time'].data.Hour[(AmbiqHARV['time'].data.Hour.length)-1],
+      ui8Date: AmbiqHARV['time'].data.Date[(AmbiqHARV['time'].data.Date.length)-1],
+      ui8Month: AmbiqHARV['time'].data.Month[(AmbiqHARV['time'].data.Month.length)-1],
+      ui8Year: AmbiqHARV['time'].data.Year[(AmbiqHARV['time'].data.Year.length)-1],
+      ui8Weekday: AmbiqHARV['time'].data.Weekday[(AmbiqHARV['time'].data.Weekday.length)-1],
+      ui8Century: AmbiqHARV['time'].data.Century[(AmbiqHARV['time'].data.Century.length)-1],
+      ui8Mode: AmbiqHARV['time'].data.Mode[(AmbiqHARV['time'].data.Mode.length)-1]
+    };
+    
+    
+    timetext = "Last Sampled Device Date and Time: <br>"+ currentTime.ui8Year +"-"+currentTime.ui8Month+"-"+currentTime.ui8Date+" ";
+    timetext += currentTime.ui8Hour+":"+currentTime.ui8Minute+":"+currentTime.ui8Second+" ";
+    timelabel.innerHTML = timetext;
+  }
+
+  setTimeButtonClick.addEventListener('click', function (event) {
+    setTimeButton();
+  });
+  getTimeButtonClick.addEventListener('click', function (event) {
+    getTimeButton();
+  });
 
   //Top left pop up messaage
   function snack(m, warningLevel) {
